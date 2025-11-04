@@ -15,7 +15,7 @@ interface TextRevealProps {
   yOffset?: number;
 }
 
-const TextReveal = ({
+const   TextReveal = ({
   children,
   className = '',
   duration = 0.9,

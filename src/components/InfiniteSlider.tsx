@@ -2,6 +2,12 @@
 
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// Register ScrollTrigger plugin
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export type Comment = {
     description: string;
@@ -18,6 +24,7 @@ export default function InfiniteSLider({ comments }: Comments) {
   const trackRef = useRef<HTMLDivElement>(null);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
   const scrollVelocityRef = useRef(0);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     if (!trackRef.current) return;
@@ -25,6 +32,27 @@ export default function InfiniteSLider({ comments }: Comments) {
     const totalWidth = trackRef.current.scrollWidth / 2;
     const baseSpeed = 50;
 
+    // Set initial state for cards - hidden and below
+    gsap.set(cardsRef.current, {
+      y: 50,
+      opacity: 0
+    });
+
+    // Fade in animation on scroll
+    gsap.to(cardsRef.current, {
+      y: 0,
+      opacity: 1,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: "back.out(1.6)",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none none"
+      }
+    });
+
+    // Infinite scroll animation
     tweenRef.current = gsap.to(trackRef.current, {
       x: `-=${totalWidth}`,
       duration: totalWidth / baseSpeed,
@@ -39,13 +67,12 @@ export default function InfiniteSLider({ comments }: Comments) {
       scrollVelocityRef.current += Math.abs(e.deltaY);
     };
 
-
-
     window.addEventListener("wheel", onWheel);
 
     return () => {
       window.removeEventListener("wheel", onWheel);
       tweenRef.current?.kill();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
@@ -54,11 +81,12 @@ export default function InfiniteSLider({ comments }: Comments) {
   return (
     <div
       ref={containerRef}
-      className={`w-full overflow-hidden relative flex items-center`}
+      className={`w-full overflow-x-hidden py-3 relative flex items-center`}
     >
       <div ref={trackRef} className="flex gap-2 w-fit items-stretch">
         {doubledImages.map((comment, index) => (
           <div
+            ref={(el) => { cardsRef.current[index] = el; }}
             className={`w-[230px] lg:w-[440px] rounded-[10px] flex flex-col justify-between gap-2 md:gap-3 py-3 px-4 md:py-6 md:px-8`}
             style={{backgroundColor: comment.color}}
             key={index}

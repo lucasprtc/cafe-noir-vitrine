@@ -28,7 +28,7 @@ const comments: Comment[] = [
 export default function Reviews() {
   return (
     <section className="py-9 md:py-[50px]">
-      <TextReveal yOffset={50} className="grid-layout grid-gap container-grid mb-9 lg:mb-18">
+      <TextReveal delay={0.2} yOffset={50} className="grid-layout grid-gap container-grid pb-9 lg:pb-18">
         <h3 className="col-span-6 col-start-2 md:col-span-12 text-right text-lg md:text-2xl font-secondary text-dark-blue">A sip of quality. A taste of community</h3>
       </TextReveal>
       <InfiniteSLider comments={comments} />
